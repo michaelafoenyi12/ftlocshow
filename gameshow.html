@@ -55,8 +55,7 @@ Stay tuned and watch our videos to prepare.
   <h2>📝 Game Show Registration</h2>
   <p class="free-notice">🎉 Registration is completely FREE!</p>
 <
-<form id="registrationForm">
-
+<form id="registrationForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
   <label>Full Name:</label><br>
   <input type="text" name="name" required><br><br>
 <label>Age:</label><br>
@@ -308,6 +307,7 @@ I consent to being recorded and appearing in FTLOC video content and media.
 </label>
 
 <br><br>
+<input type="hidden" name="_subject" value="New FTLOC Game Show Registration!">
   <button type="submit" class="btn">Submit Registration</button>
   </form>
   <div id="thankYouMessage" style="display:none;">
@@ -320,17 +320,7 @@ I consent to being recorded and appearing in FTLOC video content and media.
 
  <br>
   <a href="index.html">Back to Home</a>
-  <script>
-document.getElementById("registrationForm").addEventListener("submit", function(event) {
-
-event.preventDefault(); // Stops page reload
-
-document.getElementById("registrationForm").style.display = "none";
-
-document.getElementById("thankYouMessage").style.display = "block";
-
-});
-</script>
+  
 
 </body>
 </html>
