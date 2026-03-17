@@ -59,7 +59,7 @@
 
 <p>If you have questions about the FTLOC Game Show, registration, or participation, please contact us.</p>
 
-<form action="mailto:ftlocsupport@gmail.com" method="post" enctype="text/plain">
+<form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
 
 <label>Name</label><br>
 <input type="text" name="name" required><br><br>
@@ -69,9 +69,8 @@
 
 <label>Message</label><br>
 <textarea name="message" rows="5" required></textarea><br><br>
-
-<button class="btn">Send Message</button>
-
+<input type="hidden" name="_subject" value="New FTLOC Support Message!">
+<button type="submit" class="btn">Send Message</button>
 </form>
 
 <p>Email us directly:
