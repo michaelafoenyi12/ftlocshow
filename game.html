@@ -83,6 +83,14 @@ let gamePhase = "question";
 let moneyBox = null;
 let timeLeft;
 let timerInterval;
+function flashMessage(element, color1, color2, times, interval) {
+  let count = 0;
+  const flashInterval = setInterval(() => {
+    element.style.color = (count % 2 === 0) ? color1 : color2;
+    count++;
+    if (count >= times * 2) clearInterval(flashInterval);
+  }, interval);
+}
 
 const questions = {
   1: { text: "What is 2 + 2?", options: ["3", "4", "5", "6", "7"], correct: 1 },
