@@ -1,3 +1,4 @@
+<h2>Game Board</h2>
 <div id="questionGrid">
   <button onclick="loadQuestion(1)">1</button>
   <button onclick="loadQuestion(2)">2</button>
@@ -14,9 +15,24 @@
 </div>
 <script>
 const questions = {
+  1: {
+    text: "What is 2 + 2?",
+    options: ["3", "4", "5", "6", "7"],
+    correct: 1
+  },
+  2: {
+    text: "Which planet is known as the Red Planet?",
+    options: ["Earth", "Mars", "Venus", "Jupiter", "Saturn"],
+    correct: 1
+  },
+  3: {
+    text: "What color is the sky?",
+    options: ["Blue", "Green", "Red", "Yellow", "Purple"],
+    correct: 0
+  },
   4: {
     text: "What is the capital of France?",
-    options: ["A. Berlin", "B. Madrid", "C. Paris", "D. Rome"],
+    options: ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"],
     correct: 2
   }
 };
@@ -25,17 +41,25 @@ let timeLeft;
 let timerInterval;
 
 function loadQuestion(num) {
-  document.getElementById("gameArea").style.display = "block";
-
   const q = questions[num];
+
+  // 🔴 Prevent empty questions
+  if (!q) {
+    alert("No question added yet!");
+    return;
+  }
+
+  document.getElementById("gameArea").style.display = "block";
   document.getElementById("questionText").innerText = q.text;
 
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
+  const letters = ["A", "B", "C", "D", "E"];
+
   q.options.forEach((opt, index) => {
     const btn = document.createElement("button");
-    btn.innerText = opt;
+    btn.innerText = letters[index] + ". " + opt;
     btn.onclick = () => checkAnswer(index, q.correct);
     answersDiv.appendChild(btn);
   });
