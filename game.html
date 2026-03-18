@@ -1,0 +1,72 @@
+<div id="questionGrid">
+  <button onclick="loadQuestion(1)">1</button>
+  <button onclick="loadQuestion(2)">2</button>
+  <button onclick="loadQuestion(3)">3</button>
+  <button onclick="loadQuestion(4)">4</button>
+  <!-- Continue up to 30 -->
+</div>
+<div id="gameArea" style="display:none;">
+  <h2 id="questionText"></h2>
+
+  <div id="answers"></div>
+
+  <h3 id="timer">60</h3>
+</div>
+<script>
+const questions = {
+  4: {
+    text: "What is the capital of France?",
+    options: ["A. Berlin", "B. Madrid", "C. Paris", "D. Rome"],
+    correct: 2
+  }
+};
+
+let timeLeft;
+let timerInterval;
+
+function loadQuestion(num) {
+  document.getElementById("gameArea").style.display = "block";
+
+  const q = questions[num];
+  document.getElementById("questionText").innerText = q.text;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.options.forEach((opt, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(index, q.correct);
+    answersDiv.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = 60;
+  document.getElementById("timer").innerText = timeLeft;
+
+  clearInterval(timerInterval);
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("Time's up!");
+    }
+  }, 1000);
+}
+
+function checkAnswer(selected, correct) {
+  clearInterval(timerInterval);
+
+  if (selected === correct) {
+    alert("Correct!");
+  } else {
+    alert("Wrong!");
+  }
+}
+</script>
