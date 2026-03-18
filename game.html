@@ -4,93 +4,87 @@
   <title>FTLOC Game</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #111;
+    color: #fff;
+  }
 
-    #questionGrid button {
-      margin: 5px;
-      padding: 10px 15px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  #questionGrid button,
+  #answers button {
+    margin: 5px;
+    padding: 15px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
 
-    #answers {
-      margin-top: 20px;
-    }
+  #questionGrid button:hover,
+  #answers button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px gold;
+  }
 
-    #answers button {
-      display: block;
-      width: 250px;
-      margin: 10px auto;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  #timer {
+    font-size: 70px;
+    font-weight: bold;
+    margin-top: 15px;
+    color: #FFD700;
+    text-shadow: 0 0 20px gold, 0 0 40px orange;
+  }
 
-    /* Timer styling */
-    #timer {
-      font-size: 70px;       /* Bigger font size */
-      font-weight: bold;      /* Makes it bold */
-      margin-top: 15px;
-      color: #FFD700;         /* Gold color for visibility */
-    }
+  #gameOverMessage,
+  #boxResultMessage {
+    font-size: 60px;
+    font-weight: bold;
+    margin-top: 20px;
+    text-shadow: 0 0 15px red, 0 0 30px darkred;
+  }
 
-    #gameOverMessage {
-      color: red;
-      font-size: 60px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
+  #boxResultMessage.win {
+    color: gold;
+    text-shadow: 0 0 20px yellow, 0 0 40px orange;
+    animation: glow 1s infinite alternate;
+  }
 
-    #boxResultMessage {
-      font-size: 60px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
+  #boxResultMessage.lose {
+    color: red;
+    text-shadow: 0 0 20px red, 0 0 40px darkred;
+    animation: shake 0.5s;
+  }
 
-    #message {
-      color: gold;
-      font-size: 22px;
-      margin-top: 10px;
-    }
-  </style>
-</head>
+  #message {
+    color: gold;
+    font-size: 22px;
+    margin-top: 10px;
+  }
 
-<body>
+  @keyframes glow {
+    from { text-shadow: 0 0 20px yellow, 0 0 40px orange; }
+    to { text-shadow: 0 0 40px yellow, 0 0 80px orange; }
+  }
 
-<h2>Game Board</h2>
-
-<div id="questionGrid">
-  <button onclick="loadQuestion(1)">1</button>
-  <button onclick="loadQuestion(2)">2</button>
-  <button onclick="loadQuestion(3)">3</button>
-  <button onclick="loadQuestion(4)">4</button>
-</div>
-
-<div id="gameArea" style="display:none;">
-  <h2 id="questionText"></h2>
-  <h3 id="message"></h3>
-  <h2 id="gameOverMessage"></h2>
-  <h2 id="boxResultMessage"></h2>
-  <div id="answers"></div>
-  <h3 id="timer">60</h3>
-</div>
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
+  }
+</style>
 
 <script>
 let gamePhase = "question";
 let moneyBox = null;
 let timeLeft;
 let timerInterval;
-function flashMessage(element, color1, color2, times, interval) {
-  let count = 0;
-  const flashInterval = setInterval(() => {
-    element.style.color = (count % 2 === 0) ? color1 : color2;
-    count++;
-    if (count >= times * 2) clearInterval(flashInterval);
-  }, interval);
-}
+
+// Sounds
+const winSound = new Audio("https://freesound.org/data/previews/320/320181_4939433-lq.mp3"); // 🎉
+const loseSound = new Audio("https://freesound.org/data/previews/331/331912_3248244-lq.mp3"); // ❌
 
 const questions = {
   1: { text: "What is 2 + 2?", options: ["3", "4", "5", "6", "7"], correct: 1 },
@@ -108,6 +102,7 @@ function loadQuestion(num) {
   document.getElementById("message").innerText = "";
   document.getElementById("gameOverMessage").innerText = "";
   document.getElementById("boxResultMessage").innerText = "";
+  document.getElementById("boxResultMessage").className = "";
   document.getElementById("questionText").innerText = q.text;
 
   const answersDiv = document.getElementById("answers");
@@ -134,7 +129,7 @@ function startQuestionTimer() {
     document.getElementById("timer").innerText = timeLeft;
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      alert("Time's up!");
+      alert("⏰ Time's up! Game Over.");
       resetGame();
     }
   }, 1000);
@@ -148,8 +143,11 @@ function checkAnswer(selected, correct) {
     document.getElementById("message").innerText = "Select the correct box to win big from the FTLOC Box Challenge!";
     showMoneyBoxes();
   } else {
-    document.getElementById("gameOverMessage").innerText = "🚨 WRONG! GAME OVER 🚨";
-    setTimeout(() => resetGame(), 2000);
+    const msg = document.getElementById("gameOverMessage");
+    msg.innerText = "🚨 WRONG! GAME OVER 🚨";
+    msg.style.animation = "shake 0.5s";
+    loseSound.play();
+    setTimeout(resetGame, 2000);
   }
 }
 
@@ -163,18 +161,19 @@ function showMoneyBoxes() {
     btn.innerText = "FTLOC " + (i + 1);
     btn.onclick = function () {
       clearInterval(timerInterval);
-      const resultEl = document.getElementById("boxResultMessage");
+      const boxMsg = document.getElementById("boxResultMessage");
 
-if (i === moneyBox) {
-  resultEl.innerText = "🎉 YOU WIN! 💰";
-  flashMessage(resultEl, "gold", "orange", 10, 150);
-} else {
-  resultEl.innerText = "❌ YOU LOST!";
-  flashMessage(resultEl, "red", "black", 10, 150);
-}
+      if (i === moneyBox) {
+        boxMsg.innerText = "🎉 YOU WIN! 💰";
+        boxMsg.className = "win";
+        winSound.play();
+      } else {
+        boxMsg.innerText = "❌ YOU LOST!";
+        boxMsg.className = "lose";
+        loseSound.play();
+      }
 
-// Give time for flashing to show
-setTimeout(() => resetGame(), 4000);
+      setTimeout(resetGame, 2000);
     };
     answersDiv.appendChild(btn);
   }
@@ -204,9 +203,7 @@ function resetGame() {
   document.getElementById("message").innerText = "";
   document.getElementById("gameOverMessage").innerText = "";
   document.getElementById("boxResultMessage").innerText = "";
+  document.getElementById("boxResultMessage").className = "";
   clearInterval(timerInterval);
 }
 </script>
-
-</body>
-</html>
