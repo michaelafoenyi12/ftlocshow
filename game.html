@@ -163,8 +163,15 @@ function checkAnswer(selected, correct) {
 
   } else {
 
-    alert("Wrong! Game Over.");
-    resetGame();
+    // 🚨 SHOW BIG MESSAGE
+    document.getElementById("gameOverMessage").innerText =
+      "🚨 WRONG! GAME OVER 🚨";
+
+    // Wait 2 seconds before resetting
+    setTimeout(() => {
+      resetGame();
+      document.getElementById("gameOverMessage").innerText = "";
+    }, 2000);
 
   }
 }
