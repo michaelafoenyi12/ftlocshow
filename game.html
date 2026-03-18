@@ -14,6 +14,11 @@
   <h3 id="timer">60</h3>
 </div>
 <script>
+
+let gamePhase = "question"; 
+let selectedQuestion = null;
+let moneyBox = null;
+
 const questions = {
   1: {
     text: "What is 2 + 2?",
@@ -41,13 +46,17 @@ let timeLeft;
 let timerInterval;
 
 function loadQuestion(num) {
+
+  if (gamePhase !== "question") return;
+
   const q = questions[num];
 
-  // 🔴 Prevent empty questions
   if (!q) {
     alert("No question added yet!");
     return;
   }
+
+  selectedQuestion = num;
 
   document.getElementById("gameArea").style.display = "block";
   document.getElementById("questionText").innerText = q.text;
@@ -85,12 +94,44 @@ function startTimer() {
 }
 
 function checkAnswer(selected, correct) {
+
   clearInterval(timerInterval);
 
   if (selected === correct) {
-    alert("Correct!");
+    alert("Correct! Now select a money box.");
+    gamePhase = "box";
+    showMoneyBoxes();
   } else {
-    alert("Wrong!");
+    alert("Wrong! Game Over.");
   }
 }
+
+function showMoneyBoxes() {
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  moneyBox = Math.floor(Math.random() * 5);
+
+  for (let i = 0; i < 5; i++) {
+    const btn = document.createElement("button");
+    btn.innerText = "FTLOC " + (i + 1);
+
+    btn.onclick = function() {
+
+      if (i === moneyBox) {
+        alert("🎉 YOU WIN! 💰");
+      } else {
+        alert("❌ You Lost!");
+      }
+
+      gamePhase = "question";
+    };
+
+    answersDiv.appendChild(btn);
+  }
+}
+
 </script>
+
+
