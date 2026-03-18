@@ -1,36 +1,54 @@
-<h2>Game Board</h2>
-<div id="questionGrid">
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FTLOC Game</title>
+
+  <style>
+    #answers {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #answers button {
+      display: block;
+      width: 250px;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #timer {
+      text-align: center;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2 style="text-align:center;">Game Board</h2>
+
+<div id="questionGrid" style="text-align:center;">
   <button onclick="loadQuestion(1)">1</button>
   <button onclick="loadQuestion(2)">2</button>
   <button onclick="loadQuestion(3)">3</button>
   <button onclick="loadQuestion(4)">4</button>
-  <!-- Continue up to 30 -->
 </div>
-<div id="gameArea" style="display:none;">
+
+<div id="gameArea" style="display:none; text-align:center;">
   <h2 id="questionText"></h2>
-
   <div id="answers"></div>
-
   <h3 id="timer">60</h3>
 </div>
-<style>
-#answers {
-  margin-top: 20px;
-}
 
-#answers button {
-  display: block;        /* Makes them vertical */
-  width: 250px;          /* Makes buttons wider */
-  margin: 10px auto;     /* Adds spacing + centers them */
-  padding: 10px;
-  font-size: 16px;
-}
-</style>
 <script>
 
-let gamePhase = "question"; 
-let selectedQuestion = null;
+let gamePhase = "question";
 let moneyBox = null;
+let timeLeft;
+let timerInterval;
 
 const questions = {
   1: {
@@ -55,21 +73,12 @@ const questions = {
   }
 };
 
-let timeLeft;
-let timerInterval;
-
 function loadQuestion(num) {
 
   if (gamePhase !== "question") return;
 
   const q = questions[num];
-
-  if (!q) {
-    alert("No question added yet!");
-    return;
-  }
-
-  selectedQuestion = num;
+  if (!q) return;
 
   document.getElementById("gameArea").style.display = "block";
   document.getElementById("questionText").innerText = q.text;
@@ -86,23 +95,27 @@ function loadQuestion(num) {
     answersDiv.appendChild(btn);
   });
 
-  startTimer();
+  startQuestionTimer();
 }
 
-function startTimer() {
-  timeLeft = 60;
-  document.getElementById("timer").innerText = timeLeft;
+function startQuestionTimer() {
 
   clearInterval(timerInterval);
 
+  timeLeft = 60;
+  document.getElementById("timer").innerText = timeLeft;
+
   timerInterval = setInterval(() => {
+
     timeLeft--;
     document.getElementById("timer").innerText = timeLeft;
 
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       alert("Time's up!");
+      resetGame();
     }
+
   }, 1000);
 }
 
@@ -116,21 +129,27 @@ function checkAnswer(selected, correct) {
     showMoneyBoxes();
   } else {
     alert("Wrong! Game Over.");
+    resetGame();
   }
 }
 
 function showMoneyBoxes() {
 
   const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
+
+  // 🔥 Title added
+  answersDiv.innerHTML = "<h2>FTLOC Box Challenge</h2>";
 
   moneyBox = Math.floor(Math.random() * 5);
 
   for (let i = 0; i < 5; i++) {
+
     const btn = document.createElement("button");
     btn.innerText = "FTLOC " + (i + 1);
 
-    btn.onclick = function() {
+    btn.onclick = function () {
+
+      clearInterval(timerInterval);
 
       if (i === moneyBox) {
         alert("🎉 YOU WIN! 💰");
@@ -138,11 +157,46 @@ function showMoneyBoxes() {
         alert("❌ You Lost!");
       }
 
-      gamePhase = "question";
+      resetGame();
     };
 
     answersDiv.appendChild(btn);
   }
+
+  // 🔥 Delay ensures UI renders before timer starts
+  setTimeout(() => {
+    startBoxTimer();
+  }, 100);
+}
+
+function startBoxTimer() {
+
+  clearInterval(timerInterval);
+
+  timeLeft = 30;
+  document.getElementById("timer").innerText = timeLeft;
+
+  timerInterval = setInterval(() => {
+
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("⏰ Time's Up! Game Over.");
+      resetGame();
+    }
+
+  }, 1000);
+}
+
+function resetGame() {
+  gamePhase = "question";
+  document.getElementById("gameArea").style.display = "none";
+  clearInterval(timerInterval);
 }
 
 </script>
+
+</body>
+</html>
