@@ -4,9 +4,20 @@
   <title>FTLOC Game</title>
 
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #questionGrid button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
     #answers {
       margin-top: 20px;
-      text-align: center;
     }
 
     #answers button {
@@ -19,26 +30,32 @@
     }
 
     #timer {
-      text-align: center;
       font-size: 24px;
-      margin-top: 20px;
+      margin-top: 15px;
+    }
+
+    #message {
+      color: gold;
+      font-size: 22px;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<h2 style="text-align:center;">Game Board</h2>
+<h2>Game Board</h2>
 
-<div id="questionGrid" style="text-align:center;">
+<div id="questionGrid">
   <button onclick="loadQuestion(1)">1</button>
   <button onclick="loadQuestion(2)">2</button>
   <button onclick="loadQuestion(3)">3</button>
   <button onclick="loadQuestion(4)">4</button>
 </div>
 
-<div id="gameArea" style="display:none; text-align:center;">
+<div id="gameArea" style="display:none;">
   <h2 id="questionText"></h2>
+  <h3 id="message"></h3>
   <div id="answers"></div>
   <h3 id="timer">60</h3>
 </div>
@@ -81,6 +98,7 @@ function loadQuestion(num) {
   if (!q) return;
 
   document.getElementById("gameArea").style.display = "block";
+  document.getElementById("message").innerText = "";
   document.getElementById("questionText").innerText = q.text;
 
   const answersDiv = document.getElementById("answers");
@@ -89,10 +107,12 @@ function loadQuestion(num) {
   const letters = ["A", "B", "C", "D", "E"];
 
   q.options.forEach((opt, index) => {
+
     const btn = document.createElement("button");
     btn.innerText = letters[index] + ". " + opt;
     btn.onclick = () => checkAnswer(index, q.correct);
     answersDiv.appendChild(btn);
+
   });
 
   startQuestionTimer();
@@ -124,20 +144,28 @@ function checkAnswer(selected, correct) {
   clearInterval(timerInterval);
 
   if (selected === correct) {
-    alert("Correct! Now select a money box.");
+
     gamePhase = "box";
+
+    document.getElementById("questionText").innerText =
+      "🎉 Correct Answer!";
+
+    document.getElementById("message").innerText =
+      "Select the correct box to win big from the FTLOC Box Challenge!";
+
     showMoneyBoxes();
+
   } else {
+
     alert("Wrong! Game Over.");
     resetGame();
+
   }
 }
 
 function showMoneyBoxes() {
 
   const answersDiv = document.getElementById("answers");
-
-  // 🔥 Title added
   answersDiv.innerHTML = "<h2>FTLOC Box Challenge</h2>";
 
   moneyBox = Math.floor(Math.random() * 5);
@@ -158,15 +186,13 @@ function showMoneyBoxes() {
       }
 
       resetGame();
+
     };
 
     answersDiv.appendChild(btn);
   }
 
-  // 🔥 Delay ensures UI renders before timer starts
-  setTimeout(() => {
-    startBoxTimer();
-  }, 100);
+  startBoxTimer();
 }
 
 function startBoxTimer() {
@@ -191,9 +217,11 @@ function startBoxTimer() {
 }
 
 function resetGame() {
+
   gamePhase = "question";
   document.getElementById("gameArea").style.display = "none";
   clearInterval(timerInterval);
+
 }
 
 </script>
