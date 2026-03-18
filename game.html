@@ -163,14 +163,18 @@ function showMoneyBoxes() {
     btn.innerText = "FTLOC " + (i + 1);
     btn.onclick = function () {
       clearInterval(timerInterval);
-      if (i === moneyBox) {
-        document.getElementById("boxResultMessage").innerText = "🎉 YOU WIN! 💰";
-        document.getElementById("boxResultMessage").style.color = "gold";
-      } else {
-        document.getElementById("boxResultMessage").innerText = "❌ YOU LOST!";
-        document.getElementById("boxResultMessage").style.color = "red";
-      }
-      setTimeout(() => resetGame(), 2000);
+      const resultEl = document.getElementById("boxResultMessage");
+
+if (i === moneyBox) {
+  resultEl.innerText = "🎉 YOU WIN! 💰";
+  flashMessage(resultEl, "gold", "orange", 10, 150);
+} else {
+  resultEl.innerText = "❌ YOU LOST!";
+  flashMessage(resultEl, "red", "black", 10, 150);
+}
+
+// Give time for flashing to show
+setTimeout(() => resetGame(), 4000);
     };
     answersDiv.appendChild(btn);
   }
