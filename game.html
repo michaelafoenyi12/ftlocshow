@@ -113,14 +113,16 @@ function checkAnswer(selected, correct) {
   if (selected === correct) {
     alert("Correct! Now select a money box.");
     gamePhase = "box";
-   function showMoneyBoxes() {
+    showMoneyBoxes();
+  } else {
+    alert("Wrong! Game Over.");
+  }
+}
+
+function showMoneyBoxes() {
 
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
-
-  const title = document.createElement("h2");
-  title.innerText = "Box Challenge";
-  answersDiv.appendChild(title);
 
   moneyBox = Math.floor(Math.random() * 5);
 
@@ -130,8 +132,6 @@ function checkAnswer(selected, correct) {
 
     btn.onclick = function() {
 
-      clearInterval(timerInterval);
-
       if (i === moneyBox) {
         alert("🎉 YOU WIN! 💰");
       } else {
@@ -139,30 +139,10 @@ function checkAnswer(selected, correct) {
       }
 
       gamePhase = "question";
-      document.getElementById("gameArea").style.display = "none";
     };
 
     answersDiv.appendChild(btn);
   }
-
-  startBoxTimer();  // ✅ Timer starts here
 }
 
-function startBoxTimer() {
-  timeLeft = 30;
-  document.getElementById("timer").innerText = timeLeft;
-
-  clearInterval(timerInterval);
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      alert("⏰ Time's Up! Game Over.");
-      gamePhase = "question";
-      document.getElementById("gameArea").style.display = "none";
-    }
-  }, 1000);
-}
+</script>
