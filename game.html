@@ -33,17 +33,20 @@
       font-size: 24px;
       margin-top: 15px;
     }
-#gameOverMessage {
-  color: red;
-  font-size: 60px;
-  font-weight: bold;
-  margin-top: 20px;
-}
-#boxResultMessage {
-  font-size: 60px;
-  font-weight: bold;
-  margin-top: 20px;
-}
+
+    #gameOverMessage {
+      color: red;
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    #boxResultMessage {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
     #message {
       color: gold;
       font-size: 22px;
@@ -73,146 +76,91 @@
 </div>
 
 <script>
-
 let gamePhase = "question";
 let moneyBox = null;
 let timeLeft;
 let timerInterval;
 
 const questions = {
-  1: {
-    text: "What is 2 + 2?",
-    options: ["3", "4", "5", "6", "7"],
-    correct: 1
-  },
-  2: {
-    text: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Venus", "Jupiter", "Saturn"],
-    correct: 1
-  },
-  3: {
-    text: "What color is the sky?",
-    options: ["Blue", "Green", "Red", "Yellow", "Purple"],
-    correct: 0
-  },
-  4: {
-    text: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"],
-    correct: 2
-  }
+  1: { text: "What is 2 + 2?", options: ["3", "4", "5", "6", "7"], correct: 1 },
+  2: { text: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Venus", "Jupiter", "Saturn"], correct: 1 },
+  3: { text: "What color is the sky?", options: ["Blue", "Green", "Red", "Yellow", "Purple"], correct: 0 },
+  4: { text: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"], correct: 2 }
 };
 
 function loadQuestion(num) {
-
   if (gamePhase !== "question") return;
-
   const q = questions[num];
   if (!q) return;
 
   document.getElementById("gameArea").style.display = "block";
   document.getElementById("message").innerText = "";
+  document.getElementById("gameOverMessage").innerText = "";
+  document.getElementById("boxResultMessage").innerText = "";
   document.getElementById("questionText").innerText = q.text;
 
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
   const letters = ["A", "B", "C", "D", "E"];
-
   q.options.forEach((opt, index) => {
-
     const btn = document.createElement("button");
     btn.innerText = letters[index] + ". " + opt;
     btn.onclick = () => checkAnswer(index, q.correct);
     answersDiv.appendChild(btn);
-
   });
 
   startQuestionTimer();
 }
 
 function startQuestionTimer() {
-
   clearInterval(timerInterval);
-
   timeLeft = 60;
   document.getElementById("timer").innerText = timeLeft;
 
   timerInterval = setInterval(() => {
-
     timeLeft--;
     document.getElementById("timer").innerText = timeLeft;
-
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       alert("Time's up!");
       resetGame();
     }
-
   }, 1000);
 }
 
 function checkAnswer(selected, correct) {
-
   clearInterval(timerInterval);
-
   if (selected === correct) {
-
     gamePhase = "box";
-
-    document.getElementById("questionText").innerText =
-      "🎉 Correct Answer!";
-
-    document.getElementById("message").innerText =
-      "Select the correct box to win big from the FTLOC Box Challenge!";
-
+    document.getElementById("questionText").innerText = "🎉 Correct Answer!";
+    document.getElementById("message").innerText = "Select the correct box to win big from the FTLOC Box Challenge!";
     showMoneyBoxes();
-
   } else {
-
-    // 🚨 SHOW BIG MESSAGE
-    document.getElementById("gameOverMessage").innerText =
-      "🚨 WRONG! GAME OVER 🚨";
-
-    // Wait 2 seconds before resetting
-    setTimeout(() => {
-      resetGame();
-      document.getElementById("gameOverMessage").innerText = "";
-    }, 2000);
-
+    document.getElementById("gameOverMessage").innerText = "🚨 WRONG! GAME OVER 🚨";
+    setTimeout(() => resetGame(), 2000);
   }
 }
 
 function showMoneyBoxes() {
-
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "<h2>FTLOC Box Challenge</h2>";
-
   moneyBox = Math.floor(Math.random() * 5);
 
   for (let i = 0; i < 5; i++) {
-
     const btn = document.createElement("button");
     btn.innerText = "FTLOC " + (i + 1);
-
     btn.onclick = function () {
-
       clearInterval(timerInterval);
-
       if (i === moneyBox) {
-  // ✅ Correct box chosen
-  document.getElementById("boxResultMessage").innerText = "🎉 YOU WIN! 💰";
-  document.getElementById("boxResultMessage").style.color = "gold";
-} else {
-  // ❌ Wrong box chosen
-  document.getElementById("boxResultMessage").innerText = "❌ YOU LOST!";
-  document.getElementById("boxResultMessage").style.color = "red";
-}
-
-// Wait 2 seconds and then reset
-setTimeout(() => {
-  resetGame();
-  document.getElementById("boxResultMessage").innerText = "";
-}, 2000);
+        document.getElementById("boxResultMessage").innerText = "🎉 YOU WIN! 💰";
+        document.getElementById("boxResultMessage").style.color = "gold";
+      } else {
+        document.getElementById("boxResultMessage").innerText = "❌ YOU LOST!";
+        document.getElementById("boxResultMessage").style.color = "red";
+      }
+      setTimeout(() => resetGame(), 2000);
+    };
     answersDiv.appendChild(btn);
   }
 
@@ -220,34 +168,29 @@ setTimeout(() => {
 }
 
 function startBoxTimer() {
-
   clearInterval(timerInterval);
-
   timeLeft = 30;
   document.getElementById("timer").innerText = timeLeft;
 
   timerInterval = setInterval(() => {
-
     timeLeft--;
     document.getElementById("timer").innerText = timeLeft;
-
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       alert("⏰ Time's Up! Game Over.");
       resetGame();
     }
-
   }, 1000);
 }
 
 function resetGame() {
-
   gamePhase = "question";
   document.getElementById("gameArea").style.display = "none";
+  document.getElementById("message").innerText = "";
+  document.getElementById("gameOverMessage").innerText = "";
+  document.getElementById("boxResultMessage").innerText = "";
   clearInterval(timerInterval);
-
 }
-
 </script>
 
 </body>
