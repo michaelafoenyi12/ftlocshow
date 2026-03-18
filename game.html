@@ -39,6 +39,11 @@
   font-weight: bold;
   margin-top: 20px;
 }
+#boxResultMessage {
+  font-size: 60px;
+  font-weight: bold;
+  margin-top: 20px;
+}
     #message {
       color: gold;
       font-size: 22px;
@@ -62,6 +67,7 @@
   <h2 id="questionText"></h2>
   <h3 id="message"></h3>
   <h2 id="gameOverMessage"></h2>
+  <h2 id="boxResultMessage"></h2>
   <div id="answers"></div>
   <h3 id="timer">60</h3>
 </div>
@@ -193,15 +199,20 @@ function showMoneyBoxes() {
       clearInterval(timerInterval);
 
       if (i === moneyBox) {
-        alert("🎉 YOU WIN! 💰");
-      } else {
-        alert("❌ You Lost!");
-      }
+  // ✅ Correct box chosen
+  document.getElementById("boxResultMessage").innerText = "🎉 YOU WIN! 💰";
+  document.getElementById("boxResultMessage").style.color = "gold";
+} else {
+  // ❌ Wrong box chosen
+  document.getElementById("boxResultMessage").innerText = "❌ YOU LOST!";
+  document.getElementById("boxResultMessage").style.color = "red";
+}
 
-      resetGame();
-
-    };
-
+// Wait 2 seconds and then reset
+setTimeout(() => {
+  resetGame();
+  document.getElementById("boxResultMessage").innerText = "";
+}, 2000);
     answersDiv.appendChild(btn);
   }
 
