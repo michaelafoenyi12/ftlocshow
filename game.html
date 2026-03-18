@@ -1,34 +1,4 @@
-<h2>Game Board</h2>
-<div id="questionGrid">
-  <button onclick="loadQuestion(1)">1</button>
-  <button onclick="loadQuestion(2)">2</button>
-  <button onclick="loadQuestion(3)">3</button>
-  <button onclick="loadQuestion(4)">4</button>
-  <!-- Continue up to 30 -->
-</div>
-<div id="gameArea" style="display:none;">
-  <h2 id="questionText"></h2>
-
-  <div id="answers"></div>
-
-  <h3 id="timer">60</h3>
-</div>
-<style>
-#answers {
-  margin-top: 20px;
-}
-
-#answers button {
-  display: block;        /* Makes them vertical */
-  width: 250px;          /* Makes buttons wider */
-  margin: 10px auto;     /* Adds spacing + centers them */
-  padding: 10px;
-  font-size: 16px;
-}
-</style>
-<script>
-
-let gamePhase = "question"; 
+let gamePhase = "question";
 let selectedQuestion = null;
 let moneyBox = null;
 
@@ -63,7 +33,6 @@ function loadQuestion(num) {
   if (gamePhase !== "question") return;
 
   const q = questions[num];
-
   if (!q) {
     alert("No question added yet!");
     return;
@@ -102,6 +71,8 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       alert("Time's up!");
+      gamePhase = "question";
+      document.getElementById("gameArea").style.display = "none";
     }
   }, 1000);
 }
@@ -124,13 +95,19 @@ function showMoneyBoxes() {
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
+  const title = document.createElement("h2");
+  title.innerText = "Box Challenge";
+  answersDiv.appendChild(title);
+
   moneyBox = Math.floor(Math.random() * 5);
 
   for (let i = 0; i < 5; i++) {
     const btn = document.createElement("button");
     btn.innerText = "FTLOC " + (i + 1);
 
-    btn.onclick = function() {
+    btn.onclick = function () {
+
+      clearInterval(timerInterval);
 
       if (i === moneyBox) {
         alert("🎉 YOU WIN! 💰");
@@ -139,12 +116,30 @@ function showMoneyBoxes() {
       }
 
       gamePhase = "question";
+      document.getElementById("gameArea").style.display = "none";
     };
 
     answersDiv.appendChild(btn);
   }
+
+  startBoxTimer();
 }
 
-</script>
+function startBoxTimer() {
+  timeLeft = 30;
+  document.getElementById("timer").innerText = timeLeft;
 
+  clearInterval(timerInterval);
 
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert("⏰ Time's Up! Game Over.");
+      gamePhase = "question";
+      document.getElementById("gameArea").style.display = "none";
+    }
+  }, 1000);
+}
