@@ -8,13 +8,15 @@
       text-align: center;
       background: #111;
       color: #fff;
+      transition: background 0.5s;
+      padding: 10px;
     }
 
     #questionGrid button,
     #answers button {
       margin: 5px;
-      padding: 15px 20px;
-      font-size: 18px;
+      padding: 12px 18px;
+      font-size: 16px;
       cursor: pointer;
       border-radius: 8px;
       border: none;
@@ -28,16 +30,16 @@
     }
 
     #timer {
-      font-size: 70px;
+      font-size: 45px;
       font-weight: bold;
       margin-top: 15px;
       color: #FFD700;
-      text-shadow: 0 0 20px gold, 0 0 40px orange;
+      text-shadow: 0 0 15px gold, 0 0 30px orange;
     }
 
     #gameOverMessage,
     #boxResultMessage {
-      font-size: 60px;
+      font-size: 40px;
       font-weight: bold;
       margin-top: 20px;
     }
@@ -45,7 +47,7 @@
     #boxResultMessage.win {
       color: gold;
       text-shadow: 0 0 20px yellow, 0 0 40px orange;
-      animation: glow 1s infinite alternate;
+      animation: glowText 1s infinite alternate;
     }
 
     #boxResultMessage.lose {
@@ -56,11 +58,51 @@
 
     #message {
       color: gold;
-      font-size: 22px;
+      font-size: 20px;
       margin-top: 10px;
     }
 
-    @keyframes glow {
+    #answers {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(145deg, #FFD700, #FFA500);
+      border: 2px solid #DAA520;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(255,215,0,0.5);
+      margin: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      flex-shrink: 0;
+    }
+
+    .box.locked {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .box.dazzle {
+      animation: dazzle 1s infinite alternate;
+    }
+
+    @keyframes dazzle {
+      from { box-shadow: 0 0 15px gold, 0 0 40px yellow; transform: scale(1); }
+      to { box-shadow: 0 0 30px gold, 0 0 60px yellow; transform: scale(1.1); }
+    }
+
+    @keyframes glowText {
       from { text-shadow: 0 0 20px yellow, 0 0 40px orange; }
       to { text-shadow: 0 0 40px yellow, 0 0 80px orange; }
     }
@@ -72,6 +114,54 @@
       75% { transform: translateX(-10px); }
       100% { transform: translateX(0); }
     }
+
+    #ftlocTitle {
+      margin-bottom: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      color: gold;
+      text-shadow: 0 0 15px yellow, 0 0 30px orange;
+      display: none;
+      text-align: center;
+    }
+
+    #homeButton {
+      padding:12px 20px; 
+      font-size:18px; 
+      cursor:pointer; 
+      margin-bottom:20px;
+      display:none;
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 600px) {
+      #questionGrid button,
+      #answers button {
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      .box {
+        width: 80px;
+        height: 80px;
+        font-size: 14px;
+        margin: 8px;
+      }
+
+      #timer {
+        font-size: 35px;
+      }
+
+      #boxResultMessage,
+      #gameOverMessage {
+        font-size: 32px;
+      }
+
+      #ftlocTitle {
+        font-size: 28px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -84,157 +174,198 @@
   <h3 id="message"></h3>
   <h2 id="gameOverMessage"></h2>
   <h2 id="boxResultMessage"></h2>
-  <button id="homeButton" style="display:none; padding:15px 25px; font-size:20px; margin-top:20px; cursor:pointer;">
-  🔙 Go Back to Game Board
-</button>
+  <div id="ftlocTitle">FTLOC Box Challenge</div>
+  <button id="homeButton">🔙 Go Back to Game Board</button>
   <div id="answers"></div>
   <h3 id="timer">60</h3>
 </div>
 
 <script>
-let gamePhase = "question";
-let moneyBox = null;
+let gamePhase="question";
+let moneyBox=null;
 let timeLeft;
 let timerInterval;
 
-// Sounds
-const winSound = new Audio("https://freesound.org/data/previews/320/320181_4939433-lq.mp3");
-const loseSound = new Audio("https://freesound.org/data/previews/331/331912_3248244-lq.mp3");
+// Voice sounds
+const winSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/win.mp3");
+const loseSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/lose.mp3");
+const gameOverSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/gameover.mp3");
 
 // Questions
-const questions = {
-  1: { text: "What is 2 + 2?", options: ["3", "4", "5", "6", "7"], correct: 1 },
-  2: { text: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Venus", "Jupiter", "Saturn"], correct: 1 },
-  3: { text: "What color is the sky?", options: ["Blue", "Green", "Red", "Yellow", "Purple"], correct: 0 },
-  4: { text: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome", "Lisbon"], correct: 2 },
-  // Add more questions here
-  5: { text: "Which animal is called the King of the Jungle?", options: ["Lion", "Tiger", "Elephant", "Leopard", "Bear"], correct: 0 }
+const questions={
+  1:{text:"What is 2 + 2?",options:["3","4","5","6","7"],correct:1},
+  2:{text:"Which planet is known as the Red Planet?",options:["Earth","Mars","Venus","Jupiter","Saturn"],correct:1},
+  3:{text:"What color is the sky?",options:["Blue","Green","Red","Yellow","Purple"],correct:0},
+  4:{text:"What is the capital of France?",options:["Berlin","Madrid","Paris","Rome","Lisbon"],correct:2},
+  5:{text:"Which animal is called the King of the Jungle?",options:["Lion","Tiger","Elephant","Leopard","Bear"],correct:0},
+  6:{text:"How many continents are there?",options:["5","6","7","8","9"],correct:2},
+  7:{text:"Which ocean is the largest?",options:["Atlantic","Indian","Arctic","Pacific","Southern"],correct:3}
 };
 
-// Dynamically create buttons for all questions
-const questionGrid = document.getElementById("questionGrid");
-for (let qNum in questions) {
-  const btn = document.createElement("button");
-  btn.innerText = qNum;
-  btn.onclick = () => loadQuestion(qNum);
+// Question buttons
+const questionGrid=document.getElementById("questionGrid");
+for(let qNum in questions){
+  const btn=document.createElement("button");
+  btn.innerText=qNum;
+  btn.onclick=()=>loadQuestion(qNum);
   questionGrid.appendChild(btn);
 }
 
 // Load question
-function loadQuestion(num) {
-  if (gamePhase !== "question") return;
-  const q = questions[num];
-  if (!q) return;
+function loadQuestion(num){
+  if(gamePhase!=="question") return;
+  const q=questions[num];
+  if(!q) return;
 
-  document.getElementById("gameArea").style.display = "block";
-  document.getElementById("message").innerText = "";
-  document.getElementById("gameOverMessage").innerText = "";
-  document.getElementById("boxResultMessage").innerText = "";
-  document.getElementById("boxResultMessage").className = "";
-  document.getElementById("questionText").innerText = q.text;
+  document.getElementById("gameArea").style.display="block";
+  document.getElementById("ftlocTitle").style.display="none";
+  document.getElementById("message").innerText="";
+  document.getElementById("gameOverMessage").innerText="";
+  document.getElementById("boxResultMessage").innerText="";
+  document.getElementById("boxResultMessage").className="";
+  document.getElementById("questionText").innerText=q.text;
+  document.body.style.background="#111";
 
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-  const letters = ["A", "B", "C", "D", "E"];
-  q.options.forEach((opt, index) => {
-    const btn = document.createElement("button");
-    btn.innerText = letters[index] + ". " + opt;
-    btn.onclick = () => checkAnswer(index, q.correct);
+  const answersDiv=document.getElementById("answers");
+  answersDiv.innerHTML="";
+  const letters=["A","B","C","D","E"];
+  q.options.forEach((opt,index)=>{
+    const btn=document.createElement("button");
+    btn.innerText=letters[index]+". "+opt;
+    btn.onclick=()=>checkAnswer(index,q.correct);
     answersDiv.appendChild(btn);
   });
 
   startQuestionTimer();
 }
 
-// Timer functions
-function startQuestionTimer() {
+// Timer
+function startQuestionTimer(){
   clearInterval(timerInterval);
-  timeLeft = 60;
-  document.getElementById("timer").innerText = timeLeft;
-  timerInterval = setInterval(() => {
+  timeLeft=60;
+  document.getElementById("timer").innerText=timeLeft;
+  timerInterval=setInterval(()=>{
     timeLeft--;
-    document.getElementById("timer").innerText = timeLeft;
-    if (timeLeft <= 0) { clearInterval(timerInterval); alert("⏰ Time's up! Game Over."); resetGame(); }
-  }, 1000);
-}
-
-// Answer check
-function checkAnswer(selected, correct) {
-  clearInterval(timerInterval);
-  if (selected === correct) {
-    gamePhase = "box";
-    document.getElementById("questionText").innerText = "🎉 Correct Answer!";
-    document.getElementById("message").innerText = "Select the correct box to win big from the FTLOC Box Challenge!";
-    showMoneyBoxes();
-  } else {
-    const msg = document.getElementById("gameOverMessage");
-    msg.innerText = "🚨 WRONG! GAME OVER 🚨";
-    msg.style.animation = "shake 0.5s";
-    loseSound.play();
-    document.getElementById("homeButton").style.display = "inline-block";
-  }
-}
-
-// Money boxes
-function showMoneyBoxes() {
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "<h2>FTLOC Box Challenge</h2>";
-  moneyBox = Math.floor(Math.random() * 5);
-
-  for (let i = 0; i < 5; i++) {
-    const btn = document.createElement("button");
-    btn.innerText = "FTLOC " + (i + 1);
-    btn.onclick = function() {
+    document.getElementById("timer").innerText=timeLeft;
+    if(timeLeft<=0){
       clearInterval(timerInterval);
-      const boxMsg = document.getElementById("boxResultMessage");
-      if (i === moneyBox) {
-        boxMsg.innerText = "🎉 YOU WIN! 💰";
-        boxMsg.className = "win";
-        winSound.play();
-      } else {
-        boxMsg.innerText = "❌ YOU LOST!";
-        boxMsg.className = "lose";
-        loseSound.play();
-      }
-      document.getElementById("homeButton").style.display = "inline-block";
-    };
-    answersDiv.appendChild(btn);
-  }
-
-  startBoxTimer();
+      gamePhase="over";
+      document.getElementById("gameOverMessage").innerText="⏰ TIME UP! GAME OVER";
+      gameOverSound.play();
+      vibrate();
+      lockAnswers();
+      showHomeButton();
+      bodyGlow("red");
+    }
+  },1000);
 }
 
-function startBoxTimer() {
+// Check answer
+function checkAnswer(selected,correct){
   clearInterval(timerInterval);
-  timeLeft = 30;
-  document.getElementById("timer").innerText = timeLeft;
-  timerInterval = setInterval(() => {
+  if(selected===correct){
+    gamePhase="box";
+    document.getElementById("message").innerText="Now select the correct FTLOC Box!";
+    showMoneyBoxes();
+  }else{
+    gamePhase="over";
+    document.getElementById("gameOverMessage").innerText="🚨 WRONG! GAME OVER";
+    gameOverSound.play();
+    vibrate();
+    lockAnswers();
+    showHomeButton();
+    bodyGlow("red");
+  }
+}
+
+// Lock answer buttons
+function lockAnswers(){
+  document.querySelectorAll("#answers button").forEach(btn=>btn.disabled=true);
+}
+
+// Show boxes
+function showMoneyBoxes(){
+  const answersDiv=document.getElementById("answers");
+  answersDiv.innerHTML="";
+  document.getElementById("ftlocTitle").style.display="block";
+  document.getElementById("homeButton").style.display="inline-block";
+  moneyBox=Math.floor(Math.random()*5);
+
+  timeLeft=30;
+  document.getElementById("timer").innerText=timeLeft;
+  timerInterval=setInterval(()=>{
     timeLeft--;
-    document.getElementById("timer").innerText = timeLeft;
-    if (timeLeft <= 0) { clearInterval(timerInterval); alert("⏰ Time's Up! Game Over."); resetGame(); }
-  }, 1000);
+    document.getElementById("timer").innerText=timeLeft;
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      document.getElementById("gameOverMessage").innerText="⏰ TIME UP! GAME OVER";
+      gameOverSound.play();
+      vibrate();
+      document.querySelectorAll(".box").forEach(b=>b.classList.add("locked"));
+      bodyGlow("red");
+    }
+  },1000);
+
+  for(let i=0;i<5;i++){
+    const box=document.createElement("div");
+    box.className="box";
+    box.innerText="FTLOC "+(i+1);
+    box.onclick=function(){
+      clearInterval(timerInterval);
+      document.querySelectorAll(".box").forEach(b=>b.classList.add("locked"));
+      const boxMsg=document.getElementById("boxResultMessage");
+      if(i===moneyBox){
+        boxMsg.innerText="🎉 YOU WIN! 💰";
+        box.classList.add("dazzle");
+        winSound.play();
+        vibrate();
+        bodyGlow("gold");
+      }else{
+        boxMsg.innerText="❌ YOU LOST!";
+        boxMsg.classList.add("lose");
+        loseSound.play();
+        vibrate();
+        bodyGlow("red");
+      }
+    };
+    answersDiv.appendChild(box);
+  }
+}
+
+// Background glow
+function bodyGlow(color){
+  let original=document.body.style.background;
+  document.body.style.background=color==="gold"?"#FFD700":"#ff4d4d";
+  setTimeout(()=>{ document.body.style.background="#111"; },1000);
+}
+
+// Vibrate
+function vibrate(){
+  if(navigator.vibrate){navigator.vibrate(300);}
+}
+
+// Show Home Button
+function showHomeButton(){
+  document.getElementById("homeButton").style.display="inline-block";
 }
 
 // Reset game
-function resetGame() {
-  gamePhase = "question";
-  document.getElementById("gameArea").style.display = "none";
-
-  document.getElementById("message").innerText = "";
-  document.getElementById("gameOverMessage").innerText = "";
-  document.getElementById("boxResultMessage").innerText = "";
-  document.getElementById("boxResultMessage").className = "";
-
-  document.getElementById("answers").innerHTML = ""; // ✅ CLEAR OLD BUTTONS
-
-  document.getElementById("homeButton").style.display = "none";
-
+function resetGame(){
+  gamePhase="question";
+  document.getElementById("gameArea").style.display="none";
+  document.getElementById("message").innerText="";
+  document.getElementById("gameOverMessage").innerText="";
+  document.getElementById("boxResultMessage").innerText="";
+  document.getElementById("boxResultMessage").className="";
+  document.getElementById("answers").innerHTML="";
+  document.getElementById("homeButton").style.display="none";
+  document.getElementById("ftlocTitle").style.display="none";
+  document.body.style.background="#111";
   clearInterval(timerInterval);
 }
-document.getElementById("homeButton").onclick = function () {
-  resetGame();
-};
-</script>
 
+document.getElementById("homeButton").onclick=resetGame;
+
+</script>
 </body>
 </html>
