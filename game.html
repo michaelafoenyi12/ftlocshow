@@ -26,11 +26,12 @@
 
     #questionGrid button {
       margin: 5px;
-      padding: 15px;
-      font-size: 18px;
+      padding: 15px 20px;
+      font-size: 20px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
     #questionGrid button.locked {
@@ -50,6 +51,7 @@
       border-radius: 12px;
       width: 80%;
       margin: 20px auto;
+      font-size: 22px;
     }
 
     #answers {
@@ -57,40 +59,39 @@
       justify-content: center;
       flex-wrap: wrap;
       gap: 10px;
+      margin-top: 20px;
     }
 
     #answers button {
-      min-width: 140px;
-      padding: 15px;
-      border-radius: 10px;
+      min-width: 180px;      /* bigger buttons */
+      padding: 20px 25px;
+      font-size: 20px;       /* bigger text */
+      border-radius: 12px;
       border: none;
       background: #222;
       color: white;
       cursor: pointer;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.4s forwards;
+      margin: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    #answers button:hover,
-    .box:hover {
+    #answers button:hover {
+      transform: scale(1.05);
       box-shadow: 0 0 20px gold;
     }
 
-    @keyframes fadeInUp {
-      to { opacity:1; transform:translateY(0); }
-    }
-
     .box {
-      width: 90px;
-      height: 90px;
+      width: 120px;          /* bigger FTLOC boxes */
+      height: 120px;
       background: gold;
       display: flex;
       justify-content: center;
       align-items: center;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 20px;
+      margin: 10px;
     }
 
     .dazzle {
@@ -105,17 +106,18 @@
     #homeButton {
       display:none;
       margin:40px auto;
-      padding:15px 30px;
+      padding:15px 40px;
       background:gold;
       color:black;
       border:none;
       border-radius:10px;
-      font-size:18px;
+      font-size:20px;
       cursor:pointer;
+      display:block;
     }
+
   </style>
 </head>
-
 <body>
 
 <h2 id="timer">60</h2>
@@ -143,7 +145,7 @@ const gameOverSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/game
 const winSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/win.mp3");
 const loseSound=new Audio("https://michaelafoenyi12.github.io/ftlocshow/lose.mp3");
 
-// Questions (20)
+// 20 Questions
 const questions={
 1:{text:"2+2?",options:["3","4","5","6","7"],correct:1},
 2:{text:"Red planet?",options:["Earth","Mars","Venus","Jupiter","Saturn"],correct:1},
@@ -178,14 +180,14 @@ for(let q in questions){
 // Load question
 function loadQuestion(num, btn){
   document.getElementById("gameArea").style.display="block";
-  document.getElementById("homeButton").style.display="none"; // hide on new question
+  document.getElementById("homeButton").style.display="none";
 
+  // lock all question buttons
   document.querySelectorAll("#questionGrid button").forEach(b=>b.classList.add("locked"));
   btn.classList.add("selected");
 
   let q = questions[num];
   document.getElementById("questionText").innerText = q.text;
-
   let answersDiv = document.getElementById("answers");
   answersDiv.innerHTML="";
   document.getElementById("message").innerText="";
@@ -193,14 +195,13 @@ function loadQuestion(num, btn){
   document.getElementById("boxResultMessage").innerText="";
 
   let letters = ["A","B","C","D","E"];
-
   q.options.forEach((opt,i)=>{
     setTimeout(()=>{
       let b = document.createElement("button");
       b.innerText = letters[i] + ". "+opt;
       b.onclick = ()=>checkAnswer(i,q.correct,b);
       answersDiv.appendChild(b);
-    }, i*300);
+    }, i*200);
   });
 
   startTimer(60);
@@ -287,6 +288,5 @@ function showBoxes(){
 document.getElementById("homeButton").onclick=()=>location.reload();
 
 </script>
-
 </body>
 </html>
